@@ -12,7 +12,7 @@ class PaymentsController < ApplicationController
       flash.alert = "payment successful"
       redirect_to payments_path
     else
-      flash[:message]=["We couldn't process your transaction"]
+      flash.alert =["We couldn't process your transaction"]
       redirect_to payments_path
     end
   end
