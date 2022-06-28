@@ -5,8 +5,10 @@
       type="text/javascript"
       src="https://sandbox.web.squarecdn.com/v1/square.js"
     ></script>
+      <link href="/app.css" rel="stylesheet" />
+      <link href="/dark-mode.css" rel="stylesheet" />
   </head>
-  <body>
+  <body class="dark-mode">
     <div>
         <%=alert%>
     </div>
@@ -24,8 +26,10 @@
     const appId = "<%=ENV['appId']%>";
     const locationId = "<%=ENV['location_id']%>";
     async function initializeCard(payments) {
-      const card = await payments.card();
-      await card.attach('#card-container');
+      const card = await payments.card({
+          style: darkModeCardStyle,
+        });
+        await card.attach('#card-container');
       return card;
     }
 
@@ -101,5 +105,43 @@
         }
       }
     });
+
+    //code for card style
+     const darkModeCardStyle = {
+        '.input-container': {
+          borderColor: '#2D2D2D',
+          borderRadius: '6px',
+        },
+        '.input-container.is-focus': {
+          borderColor: '#006AFF',
+        },
+        '.input-container.is-error': {
+          borderColor: '#ff1600',
+        },
+        '.message-text': {
+          color: '#999999',
+        },
+        '.message-icon': {
+          color: '#999999',
+        },
+        '.message-text.is-error': {
+          color: '#ff1600',
+        },
+        '.message-icon.is-error': {
+          color: '#ff1600',
+        },
+        input: {
+          backgroundColor: '#2D2D2D',
+          color: '#FFFFFF',
+          fontFamily: 'helvetica neue, sans-serif',
+        },
+        'input::placeholder': {
+          color: '#999999',
+        },
+        'input.is-error': {
+          color: '#ff1600',
+        },
+      };
+
   </script>
 </html>
