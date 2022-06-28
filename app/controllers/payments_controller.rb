@@ -8,11 +8,8 @@ class PaymentsController < ApplicationController
   def create
     price = 120
     @payment=create_payment(params["nonce"],120)
-    binding.pry
-    
     if @payment.success?
-      
-      flash[:message] = "payment successful"
+      flash.alert = "payment successful"
       redirect_to payments_path
     else
       flash[:message]=["We couldn't process your transaction"]
@@ -23,8 +20,8 @@ class PaymentsController < ApplicationController
   private
 
   def get_square_client
-    access_token = "EAAAEBnBS9r90Q1EkbXTcLlya9dILD_RKBBTN1DKSttWdwZ6cW5bF0A90TpRRZQC"
-    location_id = "L529VGVNRVPCX"
+    access_token = ENV['access_token']
+    location_id = ENV['location_id']
     case Rails.env
     when"production"
       environment="production"

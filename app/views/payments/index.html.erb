@@ -8,6 +8,7 @@
   </head>
   <body>
     <div>
+        <%=alert%>
     </div>
     <%= form_with(id: "payment-form",url: payments_path, method: :post, local: true) do |f| %>
       <div class="mb-3">
@@ -20,8 +21,8 @@
         <div id="payment-status-container"></div>
   </body>
   <script>
-    const appId = "sandbox-sq0idb-E5jgJYtXjvIAb49zHIeEoQ";
-    const locationId = "L3PWDB5EPZMJQ";
+    const appId = "<%=ENV['appId']%>";
+    const locationId = "<%=ENV['location_id']%>";
     async function initializeCard(payments) {
       const card = await payments.card();
       await card.attach('#card-container');
