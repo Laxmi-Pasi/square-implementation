@@ -131,6 +131,7 @@ GEM
     nio4r (2.5.8)
     nokogiri (1.13.6-x86_64-linux)
       racc (~> 1.4)
+    pg (1.4.1)
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -203,7 +204,6 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
-    sqlite3 (1.4.4)
     square.rb (20.1.0.20220616)
       certifi (~> 2018.1, >= 2018.01.18)
       faraday (~> 2.0, >= 2.0.1)
@@ -253,6 +253,7 @@ DEPENDENCIES
   dotenv-rails
   jbuilder (~> 2.7)
   listen (~> 3.3)
+  pg (~> 1.4)
   pry (~> 0.14.1)
   puma (~> 5.0)
   rack-mini-profiler (~> 2.0)
@@ -260,7 +261,6 @@ DEPENDENCIES
   sass-rails (>= 6)
   selenium-webdriver (>= 4.0.0.rc1)
   spring
-  sqlite3 (~> 1.4)
   square.rb
   turbolinks (~> 5)
   tzinfo-data
