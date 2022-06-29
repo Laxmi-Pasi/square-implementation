@@ -16,6 +16,7 @@
         <div id="card-container"> </div>
         <%= f.hidden_field "card-nonce", name: "nonce" %>   
       </div>
+      <button id="sq-google-pay" class="button-google-pay"></button>
       <%= f.submit "Pay" ,id: "card-button",class: "btn btn-primary"%>
     <% end %>
         <div id="payment-status-container"></div>

@@ -51,4 +51,7 @@ class PaymentsController < ApplicationController
     )
     return result
   end
+
+  def gpay_payment
+  end
 end
