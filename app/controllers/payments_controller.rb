@@ -37,7 +37,7 @@ class PaymentsController < ApplicationController
 
   def create_payment(nonce, price)
     client=self.get_square_client
-    location_id="L3PWDB5EPZMJQ"
+    location_id=ENV['location_id']
     result = client.payments.create_payment(
       body: {
         source_id: nonce,
