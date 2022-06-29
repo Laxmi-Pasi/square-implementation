@@ -6,8 +6,9 @@ class PaymentsController < ApplicationController
 
 
   def create
+    # binding.pry
     price = 120
-    @payment=create_payment(params["nonce"],120)
+    @payment=create_payment(params["nonce"],price, params["ver_token"])
     if @payment.success?
       flash.alert = "payment successful"
       redirect_to payments_path
@@ -35,7 +36,7 @@ class PaymentsController < ApplicationController
     return client
   end
 
-  def create_payment(nonce, price)
+  def create_payment(nonce, price, ver_token)
     client=self.get_square_client
     location_id=ENV['location_id']
     result = client.payments.create_payment(
@@ -46,7 +47,8 @@ class PaymentsController < ApplicationController
           amount: price,
           currency: "USD"
         },
-        location_id: location_id
+        location_id: location_id,
+        verification_token: ver_token
       }
     )
     return result

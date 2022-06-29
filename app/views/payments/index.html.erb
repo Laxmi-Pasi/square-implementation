@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html>
   <head>
     <script
@@ -15,6 +15,7 @@
         <label for="card" class="form-label">Credit Card</label>
         <div id="card-container"> </div>
         <%= f.hidden_field "card-nonce", name: "nonce" %>   
+        <%= f.hidden_field "card-token", name: "ver_token" %> 
       </div>
       <%= f.submit "Pay" ,id: "card-button",class: "btn btn-primary"%>
     <% end %>
@@ -49,12 +50,38 @@
       return errorMessage
       }
     }
+    //for SCA
+
+    async function verifyBuyer(payments, token) {
+      const verificationDetails = {
+        amount: '120',
+        /* collected from the buyer */
+        billingContact: {
+          addressLines: ['123 Main Street', 'Apartment 1'],
+          familyName: 'Doe',
+          givenName: 'John',
+          email: 'jondoe@gmail.com',
+          country: 'GB',
+          phone: '3214563987',
+          region: 'LND',
+          city: 'London',
+        },
+        currencyCode: 'USD',
+        intent: 'CHARGE',
+      };
+
+      const verificationResults = await payments.verifyBuyer(
+        token,
+        verificationDetails
+      );
+      return verificationResults.token;
+    }
 
     document.addEventListener('DOMContentLoaded', async function () {
       const cardButton = document.getElementById('card-button');
       cardButton.addEventListener('click', async function (event) 
         {
-          await handlePaymentMethodSubmission(event, card);
+          await handlePaymentMethodSubmission(event, card, true);
           // debugger;
           document.getElementById('payment-form').submit();
         });
@@ -84,25 +111,65 @@
         return;
       }
 
-      cardButton.addEventListener('click', async function (event) {
-        handlePaymentMethodSubmission(event, card);
-      });
+    async function handlePaymentMethodSubmission(event,paymentMethod,shouldVerify = false) {
+      event.preventDefault();
+      try {
+        // disable the submit button as we await tokenization and make a payment
+        // request.
+        cardButton.disabled = true;
+        const token = await tokenize(paymentMethod);
+        let verificationToken;
 
-      async function handlePaymentMethodSubmission(event, paymentMethod) {
-        event.preventDefault();
-
-        try {
-            cardButton.disabled = true;
-            const token = await tokenize(paymentMethod);
-            // debugger;
-            document.getElementById('card-nonce').value = token;
-        } catch (e) {
-        console.error(e.message);
-          cardButton.disabled = false;
+        if (shouldVerify) {
+          verificationToken = await verifyBuyer(
+            payments,
+            token
+          );
         }
+
+        console.debug('Verification Token:', verificationToken);
+        document.getElementById('card-nonce').value = token;
+        document.getElementById('card-token').value = verificationToken;
+    
+      } catch (e) {
+        cardButton.disabled = false;
+        console.log('FAILURE');
+        console.error(e.message);
       }
+    }
     });
 
+    //createpayment
+     // verificationToken can be undefined, as it does not apply to all payment
+ // methods.
+    async function createPayment(token, verificationToken) {
+      const bodyParameters = {
+          locationId,
+          sourceId: token,
+      };
+
+      if (verificationToken !== undefined) {
+        bodyParameters.verificationToken = verificationToken;
+      }
+
+      const body = JSON.stringify(bodyParameters);
+
+        // Same as in the cards example.
+      const paymentResponse = await fetch('/payments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body,
+      });
+
+      if (paymentResponse.ok) {
+        return paymentResponse.json();
+      }
+
+      const errorBody = await paymentResponse.text();
+      throw new Error(errorBody);
+    }
     //code for card style
      const darkModeCardStyle = {
         '.input-container': {
