@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>  
+    <script
+      type="text/javascript"
+      src="https://sandbox.web.squarecdn.com/v1/square.js"
+    ></script>
+    <script>
+      const appId = 'sandbox-sq0idb-E5jgJYtXjvIAb49zHIeEoQ';
+      const locationId = 'L3PWDB5EPZMJQ';
+
+      async function initializeCard(payments) {
+        const card = await payments.card();
+        await card.attach('#card-container');
+        return card;
+      }
+
+      function buildPaymentRequest(payments) {
+        return payments.paymentRequest({
+          countryCode: 'US',
+          currencyCode: 'USD',
+          total: {
+            amount: '1.00',
+            label: 'Total',
+          },
+        });
+      }
+
+      async function initializeGooglePay(payments) {
+        const paymentRequest = buildPaymentRequest(payments);
+        const googlePay = await payments.googlePay(paymentRequest);
+        await googlePay.attach('#google-pay-button');
+
+        return googlePay;
+      }
+
+      async function tokenize(paymentMethod) {
+        const tokenResult = await paymentMethod.tokenize();
+        if (tokenResult.status === 'OK') {
+          return tokenResult.token;
+        } else {
+          let errorMessage = `Tokenization failed with status: ${tokenResult.status}`;
+          if (tokenResult.errors) {
+            errorMessage += ` and errors: ${JSON.stringify(
+              tokenResult.errors
+            )}`;
+          }
+
+          throw new Error(errorMessage);
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', async function () {
+        if (!window.Square) {
+          throw new Error('Square.js failed to load properly');
+        }
+
+        let payments;
+        try {
+          payments = window.Square.payments(appId, locationId);
+        } catch {
+          const statusContainer = document.getElementById(
+            'payment-status-container'
+          );
+          statusContainer.className = 'missing-credentials';
+          statusContainer.style.visibility = 'visible';
+          return;
+        }
+
+        let card;
+        try {
+          card = await initializeCard(payments);
+        } catch (e) {
+          console.error('Initializing Card failed', e);
+          return;
+        }
+
+        let googlePay;
+        try {
+          googlePay = await initializeGooglePay(payments);
+          // debugger
+        } catch (e) {
+          console.error('Initializing Google Pay failed', e);
+        }
+
+        async function handlePaymentMethodSubmission(event, paymentMethod) {
+          event.preventDefault();
+
+          try {
+            // disable the submit button as we await tokenization and make a payment request.
+            cardButton.disabled = true;
+            const token = await tokenize(paymentMethod);
+            console.log("token: "+token);
+            document.getElementById('card-nonce').value = token;
+          } catch (e) {
+            cardButton.disabled = false;
+            console.error(e.message);
+          }
+        }
+
+        const cardButton = document.getElementById('card-button');
+        cardButton.addEventListener('click', async function (event) {
+          await handlePaymentMethodSubmission(event, card);
+          document.getElementById('payment-form').submit();
+        });
+
+        // Checkpoint 2.
+        if (googlePay) {
+          const googlePayButton = document.getElementById('google-pay-button');
+          googlePayButton.addEventListener('click', async function (event) {
+            await handlePaymentMethodSubmission(event, googlePay);
+            // debugger
+            document.getElementById('payment-form').submit();
+          });
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <br><br><br>
+    <div>
+      <%=alert%>
+    </div>
+      <%= form_with(id: "payment-form",url:   gpay_path, method: :post, local: true) do |f| %>
+        <div id="google-pay-button"></div>
+        <div id="card-container"></div>
+        <%= f.hidden_field "card-nonce", name: "nonce" %>
+      <%= f.submit "Pay" ,id: "card-button",class: "btn btn-primary"%>
+      <% end %>
+    <div id="payment-status-container"></div>
+  </body>
+</html>

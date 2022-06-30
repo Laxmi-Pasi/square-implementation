@@ -1,110 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google-Pay</title>
-    <script type="text/javascript" src="https://js.squareupsandbox.com/v2/paymentform">
-    </script>
-    <script>
-       
-var paymentForm = new SqPaymentForm({
-  // Initialize Google Pay InputTarget ID
-  googlePay: {
-    elementId: 'sq-google-pay'  //REPLACE ME
-  },
-  applicationId: "sandbox-sq0idb-E5jgJYtXjvIAb49zHIeEoQ",
-  locationId: "L3PWDB5EPZMJQ",
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google-Pay</title>
+  <script type="text/javascript" src="https://js.squareupsandbox.com/v2/paymentform">
+  </script>
+  <script>
+    var paymentForm = new SqPaymentForm({
+      // Initialize Google Pay InputTarget ID
+      googlePay: {
+        elementId: 'sq-google-pay'  //REPLACE ME
+      },
+      applicationId: "sandbox-sq0idb-E5jgJYtXjvIAb49zHIeEoQ",
+      locationId: "L3PWDB5EPZMJQ",
 
-    // SqPaymentForm callback functions
-  callbacks: {
+      // SqPaymentForm callback functions
+      callbacks: {
 
-    /*
-     * callback function: createPaymentRequest
-     * Triggered when: a digital wallet payment button is clicked.
-     */
-    createPaymentRequest: function () {
-      return {
-        requestShippingAddress: true,
-        requestBillingInfo: true,
-        shippingContact: {
-          familyName: "Buyer",
-          givenName: "The",
-          email: "thebuyer@example.com",
-          country: "USA",
-          region: "CA",
-          city: "San Francisco",
-          addressLines: [
-            "123 Main St"
-          ],
-          postalCode: "94114"
+        createPaymentRequest: function () {
+          return {
+            requestShippingAddress: true,
+            requestBillingInfo: true,
+            shippingContact: {
+              familyName: "Buyer",
+              givenName: "The",
+              email: "thebuyer@example.com",
+              country: "USA",
+              region: "CA",
+              city: "San Francisco",
+              addressLines: [
+                "123 Main St"
+              ],
+              postalCode: "94114"
+            },
+            currencyCode: "USD",
+            countryCode: "US",
+            total: {
+              label: "devs-Acceptance",
+              amount: "5",
+              pending: false
+            },
+          };
         },
-        currencyCode: "USD",
-        countryCode: "US",
-        total: {
-          label: "devs-Acceptance",
-          amount: "5",
-          pending: false
+
+        cardNonceResponseReceived: function (errors, nonce, cardData, billingContact, shippingContact) {
+          if (errors) {
+            // Log errors from nonce generation to the Javascript console
+            console.log("Encountered errors:");
+            errors.forEach(function (error) {
+              console.log('  ' + error.message);
+            });
+
+            return;
+          }
+
+          // Assign the nonce value to the hidden form field
+          document.getElementById('card-nonce').value = nonce; //REPLACE ME
+          document.getElementById('payment-form').submit();
+          console.log(nonce);
+        },
+        methodsSupported: function (methods) {
+
+          var googlePayBtn = document.getElementById('sq-google-pay');           //REPLACE ME
+          // var googlePayLabel = document.getElementById('sq-google-pay-label');   //REPLACE ME
+          console.log(methods)
+          if (methods.googlePay === true) {
+            googlePayBtn.style.display = 'inline-block';
+            // googlePayLabel.style.display = 'none';
+          }
         }
-      };
-    },
-
-    /*
-     * callback function: cardNonceResponseReceived
-     * Triggered when: SqPaymentForm completes a card nonce request
-     */
-    cardNonceResponseReceived: function (errors, nonce, cardData, billingContact, shippingContact) {
-      if (errors) {
-        // Log errors from nonce generation to the Javascript console
-        console.log("Encountered errors:");
-        errors.forEach(function (error) {
-          console.log('  ' + error.message);
-        });
-
-        return;
       }
 
-      // Assign the nonce value to the hidden form field
-      document.getElementById('card-nonce').innerText = nonce; //REPLACE ME
-    },
-    /*
-     * callback function: methodsSupported
-     * `methodsSupported` will be called multiple times, once for each digital
-     * wallet you want to enable.
-     * The `methods` object will contain a single key (applePay, googlePay or
-     * src) with a boolean value indicating whether the digital wallet
-     * is enabled or not. For example, if Google Pay is available, `methods`
-     * will be the object: {googlePay: true}.
-     */
-    methodsSupported: function (methods) {
+    });
 
-      var googlePayBtn = document.getElementById('sq-google-pay');           //REPLACE ME
-      var googlePayLabel = document.getElementById('sq-google-pay-label');   //REPLACE ME
-
-
-      console.log(methods)
-      // Only show the button if Google Pay is enabled
-      // Otherwise, display the wallet not enabled message.
-      if (methods.googlePay === true) {
-        googlePayBtn.style.display = 'inline-block';
-        googlePayLabel.style.display = 'none';
-      }
-    }
-  }
-});
-    </script>
+  </script>
 
 </head>
+
 <body>
-<br><br><br><br><br>
-    <div id="form-container">
-        <div id="sq-card-number"></div>
-        <div id="sq-expiration-date"></div>
-        <div id="sq-cvv"></div>
-        <div id="sq-postal-code"></div>
-        <div id=sq-google-pay-label></div>
-        <button id="sq-google-pay" class="button-google-pay"></button>
-    </div>
+  <br><br><br><br><br>
+  <form action="/gpay_payment" method="post" accept-charset="UTF-8" , id="payment-form">
+    <input type="text" id="card-nonce" name="gpay_token" , style="display:none;">
+    <button id="sq-google-pay" class="button-google-pay"></button>
+  </form>
 </body>
+
 </html>

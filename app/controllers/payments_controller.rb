@@ -17,6 +17,23 @@ class PaymentsController < ApplicationController
     end
   end
 
+  def gpay
+  end
+
+  # to add google payment as well as credit card to square
+
+  def create_gpay
+    price = 120
+    @payment=create_payment(params["nonce"],120)
+    if @payment.success?
+      flash.alert = "payment successful"
+      redirect_to gpay_path
+    else
+      flash.alert =["We couldn't process your transaction"]
+      redirect_to gpay_path
+    end
+  end
+  
   private
 
   def get_square_client
@@ -50,8 +67,5 @@ class PaymentsController < ApplicationController
       }
     )
     return result
-  end
-
-  def gpay_payment
   end
 end
