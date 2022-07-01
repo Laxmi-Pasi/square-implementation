@@ -49,8 +49,8 @@ class PaymentsController < ApplicationController
       environment='sandbox'
     end
     client = Square::Client.new(
-      access_token: access_token,
-      environment: environment
+      access_token: access_token, 
+      environment: 'sandbox'
     )
     return client
   end
