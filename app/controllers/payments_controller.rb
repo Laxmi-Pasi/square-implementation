@@ -24,8 +24,10 @@ class PaymentsController < ApplicationController
 
   def create_gpay
     puts "-------------------------------------------create gpay-----------------"
+    puts ENV['access_token']
     price = 120
     @payment=create_payment(params["nonce"],120)
+    puts @payment
     if @payment.success?
       flash.alert = "payment successful"
       redirect_to gpay_path
@@ -54,7 +56,7 @@ class PaymentsController < ApplicationController
   end
 
   def create_payment(nonce, price)
-    pust "-------------------------create payment--------------------------"
+    puts "-------------------------create payment--------------------------"
     client=self.get_square_client
     location_id=ENV['location_id']
     result = client.payments.create_payment(
