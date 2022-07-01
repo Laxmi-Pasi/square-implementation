@@ -6,8 +6,8 @@ class PaymentsController < ApplicationController
 
 
   def create
-    price = 120
-    @payment=create_payment(params["nonce"],120)
+    price = params["to-pay"].to_f
+    @payment=create_payment(params["nonce"],price)
     if @payment.success?
       flash.alert = "payment successful"
       redirect_to payments_path
@@ -23,10 +23,8 @@ class PaymentsController < ApplicationController
   # to add google payment as well as credit card to square
 
   def create_gpay
-    puts "-------------------------------------------create gpay-----------------"
-    puts ENV['access_token']
-    price = 120
-    @payment=create_payment(params["nonce"],120)
+    price = params["to-pay"].to_f
+    @payment=create_payment(params["nonce"],price)
     puts @payment
     if @payment.success?
       flash.alert = "payment successful"
@@ -42,12 +40,12 @@ class PaymentsController < ApplicationController
   def get_square_client
     access_token = ENV['access_token']
     location_id = ENV['location_id']
-    case Rails.env
-    when"production"
-      environment="production"
-    else
-      environment='sandbox'
-    end
+    # case Rails.env
+    # when"production"
+    #   environment="production"
+    # else
+    #   environment='sandbox'
+    # end
     client = Square::Client.new(
       access_token: access_token, 
       environment: 'sandbox'
@@ -56,7 +54,6 @@ class PaymentsController < ApplicationController
   end
 
   def create_payment(nonce, price)
-    puts "-------------------------create payment--------------------------"
     client=self.get_square_client
     location_id=ENV['location_id']
     result = client.payments.create_payment(

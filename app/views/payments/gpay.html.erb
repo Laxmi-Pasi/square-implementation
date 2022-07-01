@@ -20,7 +20,7 @@
           countryCode: 'US',
           currencyCode: 'USD',
           total: {
-            amount: '1.00',
+            amount: document.getElementById('pay-amount').innerText,
             label: 'Total',
           },
         });
@@ -92,6 +92,7 @@
             const token = await tokenize(paymentMethod);
             console.log("token: "+token);
             document.getElementById('card-nonce').value = token;
+            document.getElementById('to-pay').value = document.getElementById('pay-amount').innerText;
           } catch (e) {
             cardButton.disabled = false;
             console.error(e.message);
@@ -122,8 +123,11 @@
       <%=alert%>
     </div>
       <%= form_with(id: "payment-form",url:   gpay_path, method: :post, local: true) do |f| %>
+        <center><h1><span>$</span><span id="pay-amount">100.00</span></h1></center>
         <div id="google-pay-button"></div>
+        <hr>
         <div id="card-container"></div>
+        <%= f.hidden_field "to-pay", name: "to-pay"%>
         <%= f.hidden_field "card-nonce", name: "nonce" %>
       <%= f.submit "Pay" ,id: "card-button",class: "btn btn-primary"%>
       <% end %>
