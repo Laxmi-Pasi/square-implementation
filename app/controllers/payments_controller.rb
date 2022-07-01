@@ -23,6 +23,7 @@ class PaymentsController < ApplicationController
   # to add google payment as well as credit card to square
 
   def create_gpay
+    puts "-------------------------------------------create gpay-----------------"
     price = 120
     @payment=create_payment(params["nonce"],120)
     if @payment.success?
@@ -53,6 +54,7 @@ class PaymentsController < ApplicationController
   end
 
   def create_payment(nonce, price)
+    pust "-------------------------create payment--------------------------"
     client=self.get_square_client
     location_id=ENV['location_id']
     result = client.payments.create_payment(
